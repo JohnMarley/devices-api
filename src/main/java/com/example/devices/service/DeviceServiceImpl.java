@@ -4,6 +4,7 @@ import com.example.devices.dto.DeviceDto;
 import com.example.devices.entity.Device;
 import com.example.devices.enums.State;
 import com.example.devices.exception.DeviceNotFoundException;
+import com.example.devices.exception.ErrorMessages;
 import com.example.devices.exception.IllegalDeviceStateException;
 import com.example.devices.mapper.DeviceMapper;
 import com.example.devices.repository.DeviceRepository;
@@ -38,13 +39,9 @@ public class DeviceServiceImpl implements DeviceService {
     @Override
     public DeviceDto updateDevice(UUID id, DeviceDto deviceDto) {
         var device = deviceRepository.findById(id)
-                .orElseThrow(() -> new DeviceNotFoundException("Device not found"));
-        if (device.getState() == State.IN_USE) {
-            if (!Objects.equals(device.getName(), deviceDto.getName())
-                    ||
-                    !Objects.equals(device.getBrand(), deviceDto.getBrand())) {
-                throw new IllegalDeviceStateException("Cannot update name or brand while device is in use");
-            }
+                .orElseThrow(() -> new DeviceNotFoundException(ErrorMessages.DEVICE_NOT_FOUND_MESSAGE));
+        if (Objects.equals(device.getState(), State.IN_USE) && Objects.equals(deviceDto.getState(), State.IN_USE)) {
+            throw new IllegalDeviceStateException(ErrorMessages.CANNOT_UPDATE_DEVICE_IN_USE_NAME_AND_BRAND_MESSAGE);
         }
         var updatedDevice = deviceMapper.toEntity(deviceDto);
         updatedDevice.setId(id);
@@ -56,23 +53,18 @@ public class DeviceServiceImpl implements DeviceService {
     @Override
     public DeviceDto patchDevice(UUID id, DeviceDto deviceDto) {
         var device = deviceRepository.findById(id)
-                .orElseThrow(() -> new DeviceNotFoundException("Device not found"));
-        if (Objects.nonNull(deviceDto.getName())) {
-            device.setName(deviceDto.getName());
-        }
-        if (Objects.nonNull(deviceDto.getBrand())) {
-            device.setBrand(deviceDto.getBrand());
-        }
-        if (Objects.nonNull(deviceDto.getState())) {
-            device.setState(deviceDto.getState());
-        }
+                .orElseThrow(() -> new DeviceNotFoundException(ErrorMessages.DEVICE_NOT_FOUND_MESSAGE));
+        // Validate the state transition before updating
+        validateDeviceState(device, deviceDto);
+
+        deviceMapper.updateDeviceFromDto(deviceDto, device);
         return deviceMapper.toDto(deviceRepository.save(device));
     }
 
     @Override
     public DeviceDto getDeviceById(UUID id) {
         var device = deviceRepository.findById(id)
-                .orElseThrow(() -> new DeviceNotFoundException("Device not found"));
+                .orElseThrow(() -> new DeviceNotFoundException(ErrorMessages.DEVICE_NOT_FOUND_MESSAGE));
         return deviceMapper.toDto(device);
     }
 
@@ -88,10 +80,21 @@ public class DeviceServiceImpl implements DeviceService {
     @Override
     public void deleteDevice(UUID id) {
         var device = deviceRepository.findById(id)
-                .orElseThrow(() -> new DeviceNotFoundException("Device not found"));
+                .orElseThrow(() -> new DeviceNotFoundException(ErrorMessages.DEVICE_NOT_FOUND_MESSAGE));
         if (device.getState() == State.IN_USE) {
-            throw new IllegalDeviceStateException("Cannot delete a device that is in use");
+            throw new IllegalDeviceStateException(ErrorMessages.CANNOT_DELETE_DEVICE_IN_USE_MESSAGE);
         }
         deviceRepository.deleteById(id);
+    }
+
+    private void validateDeviceState(Device device, DeviceDto deviceDto) {
+        if (Objects.equals(device.getState(), State.IN_USE)) {
+            // Throw an exception if the state is attempted to be changed to IN_USE or state is not provided
+            if (Objects.isNull(deviceDto.getState())
+                    ||
+                    Objects.equals(deviceDto.getState(), State.IN_USE)) {
+                throw new IllegalDeviceStateException(ErrorMessages.CANNOT_UPDATE_DEVICE_IN_USE_NAME_AND_BRAND_MESSAGE);
+            }
+        }
     }
 }
