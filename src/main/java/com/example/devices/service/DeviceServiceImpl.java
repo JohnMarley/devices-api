@@ -3,9 +3,10 @@ package com.example.devices.service;
 import com.example.devices.dto.DeviceDto;
 import com.example.devices.entity.Device;
 import com.example.devices.enums.State;
+import com.example.devices.exception.DeviceNotFoundException;
+import com.example.devices.exception.IllegalDeviceStateException;
 import com.example.devices.mapper.DeviceMapper;
 import com.example.devices.repository.DeviceRepository;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,12 +38,12 @@ public class DeviceServiceImpl implements DeviceService {
     @Override
     public DeviceDto updateDevice(UUID id, DeviceDto deviceDto) {
         var device = deviceRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Device not found"));
+                .orElseThrow(() -> new DeviceNotFoundException("Device not found"));
         if (device.getState() == State.IN_USE) {
             if (!Objects.equals(device.getName(), deviceDto.getName())
                     ||
                     !Objects.equals(device.getBrand(), deviceDto.getBrand())) {
-                throw new IllegalStateException("Cannot update name or brand while device is in use");
+                throw new IllegalDeviceStateException("Cannot update name or brand while device is in use");
             }
         }
         var updatedDevice = deviceMapper.toEntity(deviceDto);
@@ -55,7 +56,7 @@ public class DeviceServiceImpl implements DeviceService {
     @Override
     public DeviceDto patchDevice(UUID id, DeviceDto deviceDto) {
         var device = deviceRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Device not found"));
+                .orElseThrow(() -> new DeviceNotFoundException("Device not found"));
         if (Objects.nonNull(deviceDto.getName())) {
             device.setName(deviceDto.getName());
         }
@@ -71,7 +72,7 @@ public class DeviceServiceImpl implements DeviceService {
     @Override
     public DeviceDto getDeviceById(UUID id) {
         var device = deviceRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Device not found"));
+                .orElseThrow(() -> new DeviceNotFoundException("Device not found"));
         return deviceMapper.toDto(device);
     }
 
@@ -87,9 +88,9 @@ public class DeviceServiceImpl implements DeviceService {
     @Override
     public void deleteDevice(UUID id) {
         var device = deviceRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Device not found"));
+                .orElseThrow(() -> new DeviceNotFoundException("Device not found"));
         if (device.getState() == State.IN_USE) {
-            throw new IllegalStateException("Cannot delete a device that is in use");
+            throw new IllegalDeviceStateException("Cannot delete a device that is in use");
         }
         deviceRepository.deleteById(id);
     }
