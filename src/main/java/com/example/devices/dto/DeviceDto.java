@@ -1,6 +1,7 @@
 package com.example.devices.dto;
 
 import com.example.devices.enums.State;
+import com.example.devices.validation.OnPut;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -18,10 +19,11 @@ import java.util.UUID;
 public class DeviceDto {
 
     private UUID id;
-    @NotBlank(message = "Name is required")
+    @NotBlank(message = "Name is required", groups = OnPut.class)
     private String name;
-    @NotBlank(message = "Brand is required")
+    @NotBlank(message = "Brand is required", groups = OnPut.class)
     private String brand;
+    @NotBlank(message = "State is required", groups = OnPut.class)
     private State state;
     private Instant creationTime;
 

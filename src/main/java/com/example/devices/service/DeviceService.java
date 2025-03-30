@@ -16,7 +16,7 @@ public interface DeviceService {
 
     DeviceDto getDeviceById(UUID id);
 
-    public List<DeviceDto> getDevicesByFilters(String brand, State state);
+    List<DeviceDto> getDevicesByFilters(String brand, State state);
 
     void deleteDevice(UUID id);
 
