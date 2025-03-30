@@ -1,6 +1,7 @@
 package com.example.devices.controller;
 
 import com.example.devices.dto.DeviceDto;
+import com.example.devices.dto.DevicesDto;
 import com.example.devices.enums.State;
 import com.example.devices.service.DeviceService;
 import com.example.devices.validation.OnPatch;
@@ -19,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -52,7 +52,7 @@ public class DeviceController {
     }
 
     @GetMapping
-    public ResponseEntity<List<DeviceDto>> getAllDevices(
+    public ResponseEntity<DevicesDto> getAllDevices(
             @RequestParam(required = false) String brand,
             @RequestParam(required = false) State state) {
         return ResponseEntity.ok(deviceService.getDevicesByFilters(brand, state));

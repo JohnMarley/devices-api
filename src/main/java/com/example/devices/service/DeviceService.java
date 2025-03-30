@@ -1,9 +1,9 @@
 package com.example.devices.service;
 
 import com.example.devices.dto.DeviceDto;
+import com.example.devices.dto.DevicesDto;
 import com.example.devices.enums.State;
 
-import java.util.List;
 import java.util.UUID;
 
 public interface DeviceService {
@@ -16,7 +16,7 @@ public interface DeviceService {
 
     DeviceDto getDeviceById(UUID id);
 
-    List<DeviceDto> getDevicesByFilters(String brand, State state);
+    DevicesDto getDevicesByFilters(String brand, State state);
 
     void deleteDevice(UUID id);
 

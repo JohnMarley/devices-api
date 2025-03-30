@@ -8,6 +8,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
@@ -16,6 +17,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@EqualsAndHashCode
 public class DeviceDto {
 
     private UUID id;

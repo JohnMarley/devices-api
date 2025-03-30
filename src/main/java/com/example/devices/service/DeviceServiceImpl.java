@@ -1,6 +1,7 @@
 package com.example.devices.service;
 
 import com.example.devices.dto.DeviceDto;
+import com.example.devices.dto.DevicesDto;
 import com.example.devices.entity.Device;
 import com.example.devices.enums.State;
 import com.example.devices.exception.DeviceNotFoundException;
@@ -69,11 +70,13 @@ public class DeviceServiceImpl implements DeviceService {
     }
 
     @Override
-    public List<DeviceDto> getDevicesByFilters(String brand, State state) {
+    public DevicesDto getDevicesByFilters(String brand, State state) {
         List<Device> devices = deviceRepository.findByBrandAndState(brand, state);
-        return devices.stream()
-                .map(deviceMapper::toDto)
-                .collect(Collectors.toList());
+        return DevicesDto.builder()
+                .devices(devices.stream()
+                        .map(deviceMapper::toDto)
+                        .collect(Collectors.toList()))
+                .build();
     }
 
     @Transactional
