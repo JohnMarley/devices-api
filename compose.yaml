@@ -8,3 +8,13 @@ services:
       - 'MYSQL_USER=myuser'
     ports:
       - '3306'
+  devices_spring_app:
+    build: .
+    ports:
+      - '8080:8080'
+    depends_on:
+      - mysql
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/mydatabase
+      SPRING_DATASOURCE_USERNAME: myuser
+      SPRING_DATASOURCE_PASSWORD: secret

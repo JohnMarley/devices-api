@@ -51,6 +51,10 @@ tasks.named('bootRun', JavaExec) {
     dependsOn test
 }
 
+tasks.named('bootJar') {
+    dependsOn test
+}
+
 tasks.named('test') {
     useJUnitPlatform()
     systemProperties = System.properties
@@ -62,6 +66,7 @@ test {
 }
 
 def jacocoExclusions = [
+        'com/example/devices/config/OpendocsConfig.class',  // Excludes OpendocsConfig from coverage
         'com/example/devices/enums/**',  // Excludes enums from coverage
         'com/example/devices/dto/**',  // Excludes DTOs from coverage
         'com/example/devices/entity/**',  // Excludes db mapped entities from coverage
